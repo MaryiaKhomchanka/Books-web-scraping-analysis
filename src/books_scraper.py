@@ -35,10 +35,13 @@ def save_to_csv(dataframe):
     dataframe.to_csv("data/books.csv")
 
 
+def get_books_csv(first_page, last_page):
+    books = get_all_books(first_page, last_page)
+    save_to_csv(books)
+
 
 def main(): 
-    books = get_all_books(1, 50)
-    save_to_csv(books)
+    get_books_csv(1, 51)
 
 
 if __name__ == "__main__": 
