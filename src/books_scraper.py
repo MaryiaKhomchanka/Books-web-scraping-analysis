@@ -1,6 +1,7 @@
 import requests 
 import pandas as pd 
 from bs4 import BeautifulSoup 
+from urllib.parse import urljoin
 
 def scrape_books(url): 
     data = requests.get(url).text  
@@ -9,14 +10,28 @@ def scrape_books(url):
     return books  
 
 
+def get_category(url):
+    data = requests.get(url).text
+    soup = BeautifulSoup(data, 'html.parser')
+    breadcrumb = soup.find('ul', {'class': 'breadcrumb'})
+    breadcrumb_items = breadcrumb.find_all("li")
+    breadcrumb_item = breadcrumb_items[2]
+    category = breadcrumb_item.find('a').get_text()
+    return category
+
+def get_bookpage(book):
+    url = book.find('a')['href']
+    url = urljoin("https://books.toscrape.com/catalogue/", url)
+    return url
+
 def books_to_dataframe(books):
-    books_dict = {"Title": [], "Price": [], "Rating": [], "Availability":[]}
+    books_dict = {"Title": [], "Price": [], "Rating": [], "Category": [], "Availability":[]}
     for book in books: 
         books_dict["Title"].append(book.find('h3').text)
         books_dict["Price"].append(book.find('p', class_ = 'price_color').text)
         books_dict["Rating"].append(book.find('p', class_ = 'star-rating')['class'][1])
+        books_dict["Category"].append(get_category(get_bookpage(book)))
         books_dict["Availability"].append(book.find('p', class_ = 'availability').text.strip())
-    
     books_dataframe = pd.DataFrame.from_dict(books_dict)
     return books_dataframe
 

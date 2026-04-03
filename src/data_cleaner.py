@@ -2,6 +2,7 @@ import pandas as pd
 
 def books_to_dataframe(file):
     books = pd.read_csv(file)
+    books = books.iloc[:, 1:]
     return books 
 
 def clean_price(books): 
@@ -15,19 +16,20 @@ def fix_ratings(books):
     books["Rating"] = books["Rating"].map(numbers)
     return books
 
+def dataframe_to_csv(books): 
+    books.to_csv("data/books_clean.csv")
+
 def clean_books(file):
     books_dataframe = books_to_dataframe(file)
     clean_books_price = clean_price(books_dataframe)
     clean_books = fix_ratings(clean_books_price)
+    dataframe_to_csv(clean_books)
     return clean_books
 
 
 def main(): 
     file = "data/books.csv"
     books = clean_books(file)
-
-    print(books["Rating"])
-    print(books["Price"])
     
    
 
